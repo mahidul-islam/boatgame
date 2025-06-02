@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 import 'package:flame/components.dart';
-import 'package:flame/events.dart'; // Ensures we get the correct event types
+import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart' show Colors, ValueNotifier, Color;
 import 'boat_component.dart';
@@ -10,7 +10,6 @@ import 'river_component.dart';
 enum InputMode { manual, drag }
 
 class AngleGame extends FlameGame with DragCallbacks {
-  // DragCallbacks will use the new Event types
   late BoatComponent boat;
   late RiverComponent river;
   late PathTrailComponent pathTrail;
@@ -93,35 +92,31 @@ class AngleGame extends FlameGame with DragCallbacks {
     boat.stopMoving();
   }
 
-  // Drag Callbacks for Drag-to-Rotate mode
   @override
   void onDragStart(DragStartEvent event) {
-    // Changed from DragStartInfo
     if (currentInputMode == InputMode.drag) {
       boat.stopMoving();
       pathTrail.clear();
       pathTrail.addPoint(boat.position);
-      // Immediately update angle based on first touch point relative to boat
-      _updateAngleFromDrag(
-        event.canvasPosition,
-      ); // Changed from info.eventPosition.game
+
+      // For DragStartEvent, `event.canvasPosition` should be available and correct. [2]
+      _updateAngleFromDrag(event.canvasPosition);
     }
-    super.onDragStart(event); // Call super
+    super.onDragStart(event);
   }
 
   @override
   void onDragUpdate(DragUpdateEvent event) {
-    // Changed from DragUpdateInfo
     if (currentInputMode == InputMode.drag) {
-      _updateAngleFromDrag(
-        (event.canvasStartPosition + event.canvasEndPosition) / 2,
-      ); // Changed from info.eventPosition.game
+      // For DragUpdateEvent in Flame ~1.2.x/1.3.x, `event.canvasEndPosition`
+      // represents the current position of this drag update segment. [10]
+      _updateAngleFromDrag(event.canvasEndPosition);
     }
-    super.onDragUpdate(event); // Call super
+    super.onDragUpdate(event);
   }
 
-  void _updateAngleFromDrag(Vector2 dragPosition) {
-    Vector2 dragVector = dragPosition - boat.position;
+  void _updateAngleFromDrag(Vector2 dragPositionOnCanvas) {
+    Vector2 dragVector = dragPositionOnCanvas - boat.position;
     if (dragVector.length2 > 0) {
       double angleRad = math.atan2(dragVector.y, dragVector.x);
       double visualAngleRad = angleRad + (math.pi / 2.0);
@@ -137,27 +132,17 @@ class AngleGame extends FlameGame with DragCallbacks {
 
   @override
   void onDragEnd(DragEndEvent event) {
-    // Changed from DragEndInfo
     if (currentInputMode == InputMode.drag) {
       boat.startMoving();
     }
-    super.onDragEnd(event); // Call super
+    super.onDragEnd(event);
   }
 
   @override
   void onDragCancel(DragCancelEvent event) {
-    // Changed from DragCancelInfo (assuming it exists like this)
-    // Flame might use a generic onDragCancel() without event arg,
-    // or a DragCancelEvent. If DragCancelEvent isn't a direct type,
-    // then just onDragCancel() would be the override.
-    // Let's assume DragCancelEvent for consistency if DragCallbacks provides it.
-    // If not, it might be `void onDragCancel()`.
-    // Checking Flame's DragCallbacks: it is `void onDragCancel(int pointerId)`
-    // or newer versions: `void onDragCancel(DragCancelEvent event)`.
-    // Given the user's format, `DragCancelEvent event` is likely.
     if (currentInputMode == InputMode.drag) {
       boat.stopMoving();
     }
-    super.onDragCancel(event); // Call super
+    super.onDragCancel(event);
   }
 }
