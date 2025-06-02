@@ -1,4 +1,8 @@
 import 'dart:math' as math;
+import 'package:boatgame/base_boat_component.dart';
+import 'package:boatgame/jet_ski_component.dart';
+import 'package:boatgame/raft_component.dart';
+import 'package:boatgame/speed_boat_component.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
@@ -10,7 +14,7 @@ import 'river_component.dart';
 enum InputMode { manual, drag }
 
 class AngleGame extends FlameGame with DragCallbacks {
-  late BoatComponent boat;
+  late BaseBoatComponent boat;
   late RiverComponent river;
   late PathTrailComponent pathTrail;
 
@@ -43,7 +47,9 @@ class AngleGame extends FlameGame with DragCallbacks {
     pathTrail = PathTrailComponent();
     add(pathTrail);
 
-    boat = BoatComponent();
+    // boat = SpeedBoatComponent();
+    boat = RaftComponent();
+    // boat = JetSkiComponent();
     initialBoatPosition = Vector2(gameWidth / 2, gameHeight / 2);
     add(boat);
 
