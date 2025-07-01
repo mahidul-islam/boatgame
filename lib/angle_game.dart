@@ -47,8 +47,8 @@ class AngleGame extends FlameGame with DragCallbacks {
     pathTrail = PathTrailComponent();
     add(pathTrail);
 
-    // boat = SpeedBoatComponent();
-    boat = RaftComponent();
+    boat = SpeedBoatComponent();
+    // boat = RaftComponent();
     // boat = JetSkiComponent();
     initialBoatPosition = Vector2(gameWidth / 2, gameHeight / 2);
     add(boat);
